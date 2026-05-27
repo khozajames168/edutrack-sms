@@ -1,16 +1,22 @@
 import React, { useState } from 'react';
 import Login from './pages/Login';
 import Dashboard from './pages/Dashboard';
+import StudentPortal from './pages/StudentPortal';
 
 function App() {
-  const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [view, setView] = useState('login');
 
   return (
     <div>
-      {isLoggedIn ? (
-        <Dashboard />
-      ) : (
-        <Login onLogin={() => setIsLoggedIn(true)} />
+      {view === 'login' && (
+        <Login
+          onLogin={() => setView('dashboard')}
+          onStudentPortal={() => setView('student')}
+        />
+      )}
+      {view === 'dashboard' && <Dashboard />}
+      {view === 'student' && (
+        <StudentPortal onBackToAdmin={() => setView('login')} />
       )}
     </div>
   );
