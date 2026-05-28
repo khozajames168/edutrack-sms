@@ -13,3 +13,9 @@ body {
   background-color: #f8fafc;
   color: #1e293b;
 }
+
+:root {
+  --sasc-navy: #1B1F8A;
+  --sasc-pink: #E91E8C;
+  --sasc-green: #8DC63F;
+}
