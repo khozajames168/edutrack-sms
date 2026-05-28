@@ -1,22 +1,32 @@
-import React, { useState } from 'react';
-
-const sampleStudents = [
-  { id: 'PC-2025-001', firstName: 'Thabo', lastName: 'Mokoena', course: 'N4 Engineering', campus: 'Main Campus', cell: '071 234 5678', status: 'Active', balance: 0 },
-  { id: 'PC-2025-002', firstName: 'Nomsa', lastName: 'Sithole', course: 'Management N4', campus: 'Main Campus', cell: '082 345 6789', status: 'Active', balance: 0 },
-  { id: 'PC-2025-003', firstName: 'Lebo', lastName: 'Nkosi', course: 'ECD Level 4', campus: 'Branch Campus', cell: '073 456 7890', status: 'Pending', balance: 2400 },
-  { id: 'PC-2025-004', firstName: 'Kagiso', lastName: 'Baloyi', course: 'IT Support N4', campus: 'Main Campus', cell: '084 567 8901', status: 'Active', balance: 0 },
-  { id: 'PC-2025-005', firstName: 'Priya', lastName: 'Moodley', course: 'Safety (SAMTRAC)', campus: 'Main Campus', cell: '076 678 9012', status: 'Active', balance: 0 },
-  { id: 'PC-2025-006', firstName: 'Siphiwe', lastName: 'Dube', course: 'N4 Engineering', campus: 'Main Campus', cell: '079 789 0123', status: 'Active', balance: 1800 },
-  { id: 'PC-2025-007', firstName: 'Zanele', lastName: 'Maseko', course: 'Matric Rewrite', campus: 'Branch Campus', cell: '071 890 1234', status: 'Pending', balance: 950 },
-];
+import React, { useState, useEffect } from 'react';
+import { getStudents } from '../utils/api';
 
 export default function Students({ onSelectStudent }) {
+  const [students, setStudents] = useState([]);
   const [search, setSearch] = useState('');
   const [filterCourse, setFilterCourse] = useState('');
+  const [loading, setLoading] = useState(true);
 
-  const filtered = sampleStudents.filter(s => {
-    const fullName = `${s.firstName} ${s.lastName}`.toLowerCase();
-    const matchSearch = fullName.includes(search.toLowerCase()) || s.id.includes(search);
+  useEffect(() => {
+    loadStudents();
+  }, []);
+
+  const loadStudents = async () => {
+    try {
+      const data = await getStudents();
+      if (Array.isArray(data)) {
+        setStudents(data);
+      }
+    } catch (err) {
+      console.error('Error loading students:', err);
+    }
+    setLoading(false);
+  };
+
+  const filtered = students.filter(s => {
+    const fullName = `${s.first_name} ${s.last_name}`.toLowerCase();
+    const matchSearch = fullName.includes(search.toLowerCase()) || 
+      (s.student_number && s.student_number.includes(search));
     const matchCourse = filterCourse ? s.course === filterCourse : true;
     return matchSearch && matchCourse;
   });
@@ -24,8 +34,11 @@ export default function Students({ onSelectStudent }) {
   return (
     <div className="p-8">
       <div className="flex items-center justify-between mb-6">
-        <h2 className="text-2xl font-bold text-gray-800">Students</h2>
-        <span className="bg-blue-100 text-blue-800 text-sm px-4 py-1 rounded-full">{filtered.length} students</span>
+        <h2 className="text-2xl font-bold" style={{ color: '#1B1F8A' }}>Students</h2>
+        <span className="px-4 py-1 rounded-full text-sm font-medium text-white"
+          style={{ background: '#E91E8C' }}>
+          {filtered.length} students
+        </span>
       </div>
 
       {/* Filters */}
@@ -35,65 +48,96 @@ export default function Students({ onSelectStudent }) {
           placeholder="Search by name or student number..."
           value={search}
           onChange={(e) => setSearch(e.target.value)}
-          className="flex-1 border border-gray-300 rounded-lg px-4 py-2.5 focus:outline-none focus:ring-2 focus:ring-blue-500"
+          className="flex-1 border border-gray-300 rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:ring-2"
         />
         <select
           value={filterCourse}
           onChange={(e) => setFilterCourse(e.target.value)}
-          className="border border-gray-300 rounded-lg px-4 py-2.5 focus:outline-none focus:ring-2 focus:ring-blue-500">
+          className="border border-gray-300 rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:ring-2">
           <option value="">All Courses</option>
-          <option>N4 Engineering</option>
-          <option>Management N4</option>
+          <option>Safety Management (OHS) L2</option>
+          <option>Electrical Engineering N1-N6</option>
           <option>ECD Level 4</option>
-          <option>IT Support N4</option>
-          <option>Safety (SAMTRAC)</option>
-          <option>Matric Rewrite</option>
+          <option>Human Resource N4-N6</option>
+          <option>First Aid Level 1</option>
+          <option>Matric Rewrite - 1 Subject</option>
         </select>
+        <button onClick={loadStudents}
+          className="px-4 py-2.5 text-white rounded-lg text-sm font-medium"
+          style={{ background: '#1B1F8A' }}>
+          🔄 Refresh
+        </button>
       </div>
 
       {/* Table */}
-      <div className="bg-white rounded-xl shadow-sm overflow-hidden">
-        <table className="w-full">
-          <thead className="bg-gray-50">
-            <tr className="text-left text-sm text-gray-500">
-              <th className="px-6 py-4">Student Number</th>
-              <th className="px-6 py-4">Full Name</th>
-              <th className="px-6 py-4">Course</th>
-              <th className="px-6 py-4">Cell</th>
-              <th className="px-6 py-4">Balance</th>
-              <th className="px-6 py-4">Status</th>
-              <th className="px-6 py-4">Actions</th>
-            </tr>
-          </thead>
-          <tbody className="text-sm divide-y divide-gray-100">
-            {filtered.map((student) => (
-              <tr key={student.id} className="hover:bg-gray-50">
-                <td className="px-6 py-4 text-blue-700 font-medium">{student.id}</td>
-                <td className="px-6 py-4 font-medium">{student.firstName} {student.lastName}</td>
-                <td className="px-6 py-4 text-gray-600">{student.course}</td>
-                <td className="px-6 py-4 text-gray-600">{student.cell}</td>
-                <td className="px-6 py-4">
-                  {student.balance > 0
-                    ? <span className="text-red-600 font-medium">R{student.balance.toLocaleString()}</span>
-                    : <span className="text-green-600">Paid</span>}
-                </td>
-                <td className="px-6 py-4">
-                  <span className={`px-3 py-1 rounded-full text-xs font-medium ${student.status === 'Active' ? 'bg-green-100 text-green-700' : 'bg-yellow-100 text-yellow-700'}`}>
-                    {student.status}
-                  </span>
-                </td>
-                <td className="px-6 py-4">
-                  <button
-                    onClick={() => onSelectStudent(student)}
-                    className="text-blue-600 hover:text-blue-800 text-sm font-medium">
-                    View Proof
-                  </button>
-                </td>
+      {loading ? (
+        <div className="bg-white rounded-xl shadow-sm p-12 text-center">
+          <p className="text-gray-500">Loading students...</p>
+        </div>
+      ) : filtered.length === 0 ? (
+        <div className="bg-white rounded-xl shadow-sm p-12 text-center">
+          <p className="text-4xl mb-3">👥</p>
+          <p className="text-gray-500">No students found.</p>
+        </div>
+      ) : (
+        <div className="bg-white rounded-xl shadow-sm overflow-hidden">
+          <table className="w-full">
+            <thead style={{ background: '#1B1F8A' }}>
+              <tr className="text-left text-xs text-white">
+                <th className="px-6 py-4">Photo</th>
+                <th className="px-6 py-4">Student Number</th>
+                <th className="px-6 py-4">Full Name</th>
+                <th className="px-6 py-4">Course</th>
+                <th className="px-6 py-4">Campus</th>
+                <th className="px-6 py-4">Cell</th>
+                <th className="px-6 py-4">Status</th>
+                <th className="px-6 py-4">Actions</th>
               </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
+            </thead>
+            <tbody className="text-sm divide-y divide-gray-100">
+              {filtered.map((student) => (
+                <tr key={student.id} className="hover:bg-gray-50">
+                  <td className="px-6 py-4">
+                    {student.photo
+                      ? <img src={student.photo} alt="" className="w-10 h-12 object-cover rounded-lg border" style={{ borderColor: '#1B1F8A' }} />
+                      : <div className="w-10 h-12 rounded-lg flex items-center justify-center text-white text-lg font-bold"
+                          style={{ background: '#1B1F8A' }}>
+                          {student.first_name?.[0]}{student.last_name?.[0]}
+                        </div>
+                    }
+                  </td>
+                  <td className="px-6 py-4 font-medium" style={{ color: '#E91E8C' }}>
+                    {student.student_number}
+                  </td>
+                  <td className="px-6 py-4 font-medium text-gray-800">
+                    {student.title} {student.first_name} {student.last_name}
+                  </td>
+                  <td className="px-6 py-4 text-gray-600">{student.course}</td>
+                  <td className="px-6 py-4 text-gray-600">{student.campus}</td>
+                  <td className="px-6 py-4 text-gray-600">{student.cell_number}</td>
+                  <td className="px-6 py-4">
+                    <span className="px-3 py-1 rounded-full text-xs font-medium"
+                      style={{
+                        background: student.status === 'Active' ? '#f0fdf4' : '#fefce8',
+                        color: student.status === 'Active' ? '#16a34a' : '#ca8a04'
+                      }}>
+                      {student.status}
+                    </span>
+                  </td>
+                  <td className="px-6 py-4">
+                    <button
+                      onClick={() => onSelectStudent(student)}
+                      className="text-sm font-medium px-3 py-1 rounded-lg text-white"
+                      style={{ background: '#1B1F8A' }}>
+                      View
+                    </button>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      )}
     </div>
   );
 }
