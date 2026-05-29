@@ -118,12 +118,16 @@ export default function Login({ onLogin, onStudentPortal }) {
             </button>
           </form>
 
-          <div className="mt-8 pt-6 border-t border-gray-100">
-            <p className="text-xs text-gray-400 text-center">DHET Exam Center No. 6999 926 54</p>
-            <p className="text-xs text-gray-400 text-center mt-1">
-              Burgersfort: 010 055 5115 | Polokwane: 015 008 5102
-            </p>
-          </div>
+         <div className="mt-8 pt-6 border-t border-gray-100">
+  <p className="text-xs text-gray-400 text-center">DHET Exam Center No. 6999 926 54</p>
+  <p className="text-xs text-gray-400 text-center mt-1">
+    Burgersfort: 010 055 5115 | Polokwane: 015 008 5102
+  </p>
+  <button onClick={onSuperAdmin}
+    className="w-full mt-3 text-center text-xs text-gray-300 hover:text-gray-500">
+    EduTrack Admin
+  </button>
+</div>
         </div>
       </div>
     </div>
