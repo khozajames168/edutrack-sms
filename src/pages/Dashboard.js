@@ -5,6 +5,7 @@ import ProofOfRegistration from './ProofOfRegistration';
 import Marks from './Marks';
 import Finance from './Finance';
 import Attendance from './Attendance';
+import Reports from './Reports';
 import React, { useState } from 'react';
 
 export default function Dashboard() {
@@ -19,6 +20,7 @@ export default function Dashboard() {
     { key: 'marks', icon: '🎓', label: 'Marks & Assessments' },
     { key: 'finance', icon: '💰', label: 'Finance' },
     { key: 'attendance', icon: '📅', label: 'Attendance' },
+    { key: 'reports', icon: '📊', label: 'Reports & Exports' },
   ];
 
   const pageTitles = {
@@ -205,6 +207,7 @@ export default function Dashboard() {
           {activePage === 'marks' && <Marks />}
           {activePage === 'finance' && <Finance />}
           {activePage === 'attendance' && <Attendance />}
+          {activePage === 'reports' && <Reports />}
 
         </div>
       </div>
