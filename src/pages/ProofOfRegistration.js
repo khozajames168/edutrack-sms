@@ -12,6 +12,24 @@ export default function ProofOfRegistration({ student, onBack }) {
     ? `SASC-${student.student_number || student.studentNumber}-${new Date().getFullYear()}-VRF`
     : '';
 
+  const handleDownloadPDF = async () => {
+    const { jsPDF } = await import('jspdf');
+    const html2canvas = (await import('html2canvas')).default;
+    const element = printRef.current;
+    const canvas = await html2canvas(element, {
+      scale: 2,
+      useCORS: true,
+      allowTaint: true,
+      backgroundColor: '#ffffff',
+    });
+    const imgData = canvas.toDataURL('image/png');
+    const pdf = new jsPDF('p', 'mm', 'a4');
+    const pdfWidth = pdf.internal.pageSize.getWidth();
+    const pdfHeight = (canvas.height * pdfWidth) / canvas.width;
+    pdf.addImage(imgData, 'PNG', 0, 0, pdfWidth, pdfHeight);
+    pdf.save(`Proof_of_Registration_${studentNumber}_${new Date().getFullYear()}.pdf`);
+  };
+
   const handlePrint = () => {
     const printContent = printRef.current.innerHTML;
     const win = window.open('', '_blank');
@@ -22,29 +40,6 @@ export default function ProofOfRegistration({ student, onBack }) {
           <style>
             * { margin: 0; padding: 0; box-sizing: border-box; }
             body { font-family: Arial, sans-serif; }
-            .proof { position: relative; width: 210mm; min-height: 297mm; padding: 15mm; background: white; }
-            .watermark { position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%) rotate(-45deg); font-size: 80px; color: rgba(27, 31, 138, 0.06); font-weight: bold; white-space: nowrap; pointer-events: none; z-index: 0; }
-            .header { display: flex; align-items: center; justify-content: space-between; padding-bottom: 10px; border-bottom: 4px solid #1B1F8A; margin-bottom: 15px; }
-            .logo { width: 180px; }
-            .header-right { text-align: right; }
-            .header-right h1 { color: #1B1F8A; font-size: 20px; font-weight: bold; }
-            .header-right p { color: #666; font-size: 11px; }
-            .pink-bar { background: #E91E8C; color: white; text-align: center; padding: 8px; font-size: 14px; font-weight: bold; letter-spacing: 2px; margin-bottom: 15px; }
-            .content { display: flex; gap: 20px; margin-bottom: 15px; position: relative; z-index: 1; }
-            .photo-box { width: 110px; height: 130px; border: 3px solid #1B1F8A; flex-shrink: 0; overflow: hidden; display: flex; align-items: center; justify-content: center; background: #f0f4ff; }
-            .photo-box img { width: 100%; height: 100%; object-fit: cover; }
-            .photo-placeholder { text-align: center; color: #1B1F8A; font-size: 12px; }
-            .details { flex: 1; }
-            .details table { width: 100%; border-collapse: collapse; font-size: 12px; }
-            .details td { padding: 5px 8px; border-bottom: 1px solid #eee; }
-            .details td:first-child { font-weight: bold; color: #1B1F8A; width: 40%; background: #f8f9ff; }
-            .stamp-area { display: flex; justify-content: space-between; align-items: flex-end; margin-top: 20px; padding-top: 15px; border-top: 2px solid #1B1F8A; }
-            .stamp { width: 100px; height: 100px; border: 3px solid #1B1F8A; border-radius: 50%; display: flex; align-items: center; justify-content: center; text-align: center; color: #1B1F8A; font-size: 8px; font-weight: bold; padding: 10px; }
-            .signature-line { border-top: 1px solid #333; width: 200px; margin-top: 50px; }
-            .verification { background: #f0f4ff; border: 1px solid #1B1F8A; padding: 8px 12px; font-size: 10px; color: #1B1F8A; margin-top: 15px; text-align: center; }
-            .qr-placeholder { width: 80px; height: 80px; border: 2px solid #1B1F8A; display: flex; align-items: center; justify-content: center; font-size: 10px; color: #1B1F8A; text-align: center; }
-            .footer { margin-top: 15px; padding-top: 10px; border-top: 2px solid #8DC63F; display: flex; justify-content: space-between; font-size: 10px; color: #666; }
-            .notice { background: #fff8e1; border-left: 4px solid #E91E8C; padding: 8px 12px; font-size: 10px; color: #333; margin-top: 10px; }
           </style>
         </head>
         <body>${printContent}</body>
@@ -89,6 +84,11 @@ export default function ProofOfRegistration({ student, onBack }) {
       )}
 
       <div className="flex gap-4 mb-6 justify-end">
+        <button onClick={handleDownloadPDF}
+          className="px-6 py-3 text-white font-semibold rounded-lg flex items-center gap-2"
+          style={{ background: '#E91E8C' }}>
+          📥 Download PDF
+        </button>
         <button onClick={handlePrint}
           className="px-6 py-3 text-white font-semibold rounded-lg flex items-center gap-2"
           style={{ background: '#1B1F8A' }}>
@@ -96,7 +96,7 @@ export default function ProofOfRegistration({ student, onBack }) {
         </button>
         <button
           className="px-6 py-3 text-white font-semibold rounded-lg flex items-center gap-2"
-          style={{ background: '#E91E8C' }}>
+          style={{ background: '#8DC63F' }}>
           📧 Email to Student
         </button>
       </div>
@@ -141,7 +141,6 @@ export default function ProofOfRegistration({ student, onBack }) {
 
           {/* Student Details + Photo */}
           <div style={{ display: 'flex', gap: '20px', marginBottom: '20px' }}>
-
             {/* Photo */}
             <div style={{ flexShrink: 0 }}>
               <div style={{ width: '110px', height: '130px', border: '3px solid #1B1F8A', overflow: 'hidden', display: 'flex', alignItems: 'center', justifyContent: 'center', background: '#f0f4ff' }}>
@@ -188,7 +187,6 @@ export default function ProofOfRegistration({ student, onBack }) {
 
           {/* Stamp + Signature + QR */}
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', marginTop: '20px', paddingTop: '15px', borderTop: '2px solid #1B1F8A' }}>
-
             {/* Official Stamp */}
             <div style={{ textAlign: 'center' }}>
               <div style={{ width: '100px', height: '100px', border: '3px solid #1B1F8A', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', textAlign: 'center', color: '#1B1F8A', fontSize: '8px', fontWeight: 'bold', padding: '10px', background: 'rgba(27,31,138,0.03)' }}>
@@ -211,7 +209,7 @@ export default function ProofOfRegistration({ student, onBack }) {
               <p style={{ fontSize: '10px', color: '#666' }}>{today}</p>
             </div>
 
-            {/* QR Code Placeholder */}
+            {/* QR Code */}
             <div style={{ textAlign: 'center' }}>
               <div style={{ width: '80px', height: '80px', border: '2px solid #1B1F8A', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '40px' }}>
                 ▦
