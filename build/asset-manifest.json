@@ -1,0 +1,16 @@
+{
+  "files": {
+    "main.css": "/static/css/main.49c3e898.css",
+    "main.js": "/static/js/main.23d087a2.js",
+    "static/js/488.d058aa9a.chunk.js": "/static/js/488.d058aa9a.chunk.js",
+    "static/media/sasc-logo.png": "/static/media/sasc-logo.660c5069be0b69c41dec.png",
+    "index.html": "/index.html",
+    "main.49c3e898.css.map": "/static/css/main.49c3e898.css.map",
+    "main.23d087a2.js.map": "/static/js/main.23d087a2.js.map",
+    "488.d058aa9a.chunk.js.map": "/static/js/488.d058aa9a.chunk.js.map"
+  },
+  "entrypoints": [
+    "static/css/main.49c3e898.css",
+    "static/js/main.23d087a2.js"
+  ]
+}
