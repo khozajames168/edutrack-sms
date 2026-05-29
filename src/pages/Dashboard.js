@@ -13,6 +13,7 @@ import React, { useState, useEffect } from 'react';
 export default function Dashboard() {
  const [activePage, setActivePage] = useState('dashboard');
 const [selectedStudent, setSelectedStudent] = useState(null);
+const [sidebarOpen, setSidebarOpen] = useState(false);
 const [stats, setStats] = useState({
   totalStudents: 0,
   activeStudents: 0,
@@ -61,7 +62,7 @@ const loadStats = async () => {
     <div className="flex h-screen bg-gray-50">
 
       {/* Sidebar */}
-      <div className="w-64 flex flex-col shadow-xl" style={{ background: '#1B1F8A' }}>
+      <div className={`${sidebarOpen ? 'flex' : 'hidden'} md:flex w-64 flex-col shadow-xl fixed md:relative h-full z-50`} style={{ background: '#1B1F8A' }}>
         
         {/* Logo */}
         <div className="p-5 border-b border-blue-800">
@@ -99,13 +100,20 @@ const loadStats = async () => {
       <div className="flex-1 flex flex-col overflow-hidden">
 
         {/* Topbar */}
-        <div className="bg-white shadow-sm px-8 py-4 flex items-center justify-between">
-          <div>
-            <h2 className="text-lg font-bold" style={{ color: '#1B1F8A' }}>
-              {pageTitles[activePage]}
-            </h2>
-            <p className="text-xs text-gray-400">SA Shepherd College Management System</p>
-          </div>
+        <div className="bg-white shadow-sm px-4 md:px-8 py-4 flex items-center justify-between">
+          <div className="flex items-center gap-3">
+  <button onClick={() => setSidebarOpen(!sidebarOpen)}
+    className="md:hidden p-2 rounded-lg"
+    style={{ background: '#1B1F8A', color: 'white' }}>
+    ☰
+  </button>
+  <div>
+    <h2 className="text-lg font-bold" style={{ color: '#1B1F8A' }}>
+      {pageTitles[activePage]}
+    </h2>
+    <p className="text-xs text-gray-400 hidden md:block">SA Shepherd College Management System</p>
+  </div>
+</div>
           <div className="flex items-center gap-3">
             <div className="text-right">
               <p className="text-sm font-medium text-gray-700">Administrator</p>
