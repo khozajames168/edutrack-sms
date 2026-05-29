@@ -3,7 +3,7 @@
     "builder": "NIXPACKS"
   },
   "deploy": {
-    "startCommand": "node server.js",
+    "startCommand": "npx serve -s build -l 3000",
     "restartPolicyType": "ON_FAILURE"
   }
 }
