@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import logo from '../sasc-logo.png';
 import { loginAdmin } from '../utils/api';
 
-export default function Login({ onLogin, onStudentPortal }) {
+export default function Login({ onLogin, onStudentPortal, onSuperAdmin }) {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
