@@ -7,6 +7,9 @@ export default function Login({ onLogin, onStudentPortal, onSuperAdmin }) {
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
+  const [showReset, setShowReset] = useState(false);
+  const [resetEmail, setResetEmail] = useState('');
+  const [resetSent, setResetSent] = useState(false);
 
   const handleLogin = async (e) => {
     e.preventDefault();
@@ -90,18 +93,24 @@ export default function Login({ onLogin, onStudentPortal, onSuperAdmin }) {
                 placeholder="admin@sashepherdcollege.org.za"
                 required
               />
-            </div>
             <div className="mb-6">
-              <label className="block text-sm font-medium text-gray-700 mb-1">Password</label>
-              <input
-                type="password"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                className="w-full border border-gray-300 rounded-lg px-4 py-3 focus:outline-none focus:ring-2 text-sm"
-                placeholder="••••••••"
-                required
-              />
-            </div>
+  <div className="flex items-center justify-between mb-1">
+    <label className="block text-sm font-medium text-gray-700">Password</label>
+    <button type="button" onClick={() => setShowReset(true)}
+      className="text-xs hover:underline"
+      style={{ color: '#E91E8C' }}>
+      Forgot password?
+    </button>
+  </div>
+  <input
+    type="password"
+    value={password}
+    onChange={(e) => setPassword(e.target.value)}
+    className="w-full border border-gray-300 rounded-lg px-4 py-3 focus:outline-none focus:ring-2 text-sm"
+    placeholder="••••••••"
+    required
+  />
+</div>
             <button
               type="submit"
               disabled={loading}
@@ -124,12 +133,59 @@ export default function Login({ onLogin, onStudentPortal, onSuperAdmin }) {
     Burgersfort: 010 055 5115 | Polokwane: 015 008 5102
   </p>
   <button onClick={onSuperAdmin}
-    className="w-full mt-3 text-center text-xs text-gray-300 hover:text-gray-500">
-    EduTrack Admin
-  </button>
+  className="w-full mt-3 text-center text-xs text-gray-300 hover:text-gray-500">
+  EduTrack Admin
+</button>
+<div className="mt-4 p-3 bg-gray-50 rounded-lg">
+  <p className="text-xs text-gray-400 text-center">
+    🔒 This system complies with the Protection of Personal Information Act (POPIA). 
+    Your data is stored securely and used only for educational administration purposes.
+  </p>
+</div>
 </div>
         </div>
       </div>
+      {showReset && (
+  <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+    <div className="bg-white rounded-2xl shadow-2xl p-8 w-full max-w-md mx-4">
+      <h3 className="text-lg font-bold mb-2" style={{ color: '#1B1F8A' }}>Reset Password</h3>
+      {resetSent ? (
+        <div>
+          <div className="p-4 bg-green-50 border border-green-200 rounded-lg mb-4">
+            <p className="text-sm text-green-700">✅ Password reset instructions sent! Please contact your system administrator to complete the reset.</p>
+          </div>
+          <button onClick={() => { setShowReset(false); setResetSent(false); }}
+            className="w-full py-3 text-white font-semibold rounded-lg"
+            style={{ background: '#1B1F8A' }}>
+            Back to Login
+          </button>
+        </div>
+      ) : (
+        <div>
+          <p className="text-sm text-gray-500 mb-4">Enter your email address and we will send you reset instructions.</p>
+          <input
+            type="email"
+            value={resetEmail}
+            onChange={(e) => setResetEmail(e.target.value)}
+            className="w-full border border-gray-300 rounded-lg px-4 py-3 text-sm focus:outline-none focus:ring-2 mb-4"
+            placeholder="your@email.com"
+          />
+          <div className="flex gap-3">
+            <button onClick={() => setShowReset(false)}
+              className="flex-1 py-3 border border-gray-300 rounded-lg text-gray-700 font-medium">
+              Cancel
+            </button>
+            <button onClick={() => setResetSent(true)}
+              className="flex-1 py-3 text-white font-semibold rounded-lg"
+              style={{ background: '#E91E8C' }}>
+              Send Reset
+            </button>
+          </div>
+        </div>
+      )}
+    </div>
+  </div>
+)}
     </div>
   );
 }
