@@ -7,6 +7,7 @@ import Finance from './Finance';
 import Attendance from './Attendance';
 import Reports from './Reports';
 import Communication from './Communication';
+import UserManual from './UserManual';
 import React, { useState, useEffect } from 'react';
 
 
@@ -46,6 +47,7 @@ const loadStats = async () => {
     { key: 'attendance', icon: '📅', label: 'Attendance' },
     { key: 'reports', icon: '📊', label: 'Reports & Exports' },
     { key: 'communication', icon: '💬', label: 'Communication' },
+    { key: 'manual', icon: '📖', label: 'User Manual' },
   ];
 
   const pageTitles = {
@@ -241,6 +243,7 @@ const loadStats = async () => {
           {activePage === 'attendance' && <Attendance />}
           {activePage === 'reports' && <Reports />}
           {activePage === 'communication' && <Communication />}
+          {activePage === 'manual' && <UserManual />}
 
         </div>
       </div>
