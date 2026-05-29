@@ -8,7 +8,7 @@ import Attendance from './Attendance';
 import Reports from './Reports';
 import Communication from './Communication';
 import React, { useState, useEffect } from 'react';
-import { useEffect } from 'react';
+
 
 export default function Dashboard() {
  const [activePage, setActivePage] = useState('dashboard');
