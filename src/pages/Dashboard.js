@@ -6,12 +6,34 @@ import Marks from './Marks';
 import Finance from './Finance';
 import Attendance from './Attendance';
 import Reports from './Reports';
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import { useEffect } from 'react';
 
 export default function Dashboard() {
-  const [activePage, setActivePage] = useState('dashboard');
-  const [selectedStudent, setSelectedStudent] = useState(null);
+ const [activePage, setActivePage] = useState('dashboard');
+const [selectedStudent, setSelectedStudent] = useState(null);
+const [stats, setStats] = useState({
+  totalStudents: 0,
+  activeStudents: 0,
+  totalFees: 0,
+  totalPaid: 0,
+  burgersfort: 0,
+  polokwane: 0,
+});
 
+useEffect(() => {
+  loadStats();
+}, []);
+
+const loadStats = async () => {
+  try {
+    const { getStats } = await import('../utils/api');
+    const data = await getStats();
+    if (data && !data.error) setStats(data);
+  } catch (err) {
+    console.error(err);
+  }
+};
  const navItems = [
     { key: 'dashboard', icon: '📊', label: 'Dashboard' },
     { key: 'register', icon: '📝', label: 'Register Student' },
@@ -102,10 +124,10 @@ export default function Dashboard() {
               {/* Stats */}
               <div className="grid grid-cols-4 gap-6 mb-8">
                 {[
-                  { label: 'Total Students', value: '312', sub: '↑ 14 this month', color: '#1B1F8A' },
-                  { label: 'Active Courses', value: '32', sub: 'Across all faculties', color: '#8DC63F' },
-                  { label: 'Fees Collected', value: 'R184k', sub: 'This month', color: '#1B1F8A' },
-                  { label: 'Outstanding Fees', value: 'R62k', sub: '38 students', color: '#E91E8C' },
+                  { label: 'Total Students', value: stats.totalStudents, sub: 'Registered students', color: '#1B1F8A' },
+{ label: 'Burgersfort Campus', value: stats.burgersfort, sub: 'Students enrolled', color: '#8DC63F' },
+{ label: 'Fees Collected', value: `R${stats.totalPaid.toLocaleString()}`, sub: 'Total payments received', color: '#1B1F8A' },
+{ label: 'Outstanding Fees', value: `R${(stats.totalFees - stats.totalPaid).toLocaleString()}`, sub: 'Amount outstanding', color: '#E91E8C' },
                 ].map(stat => (
                   <div key={stat.label} className="bg-white rounded-xl shadow-sm p-6 border-t-4"
                     style={{ borderColor: stat.color }}>
@@ -119,8 +141,8 @@ export default function Dashboard() {
               {/* Campuses */}
               <div className="grid grid-cols-2 gap-6 mb-8">
                 {[
-                  { name: 'Burgersfort Campus', address: 'Main Road, RCS Building Between CashBuild and Caltex', tel: '010 055 5115', students: 178 },
-                  { name: 'Polokwane Campus', address: '17 Rissik Street CNR Landros Mare, next to Engine Garage', tel: '015 008 5102', students: 134 },
+                  { name: 'Burgersfort Campus', address: 'Main Road, RCS Building Between CashBuild and Caltex', tel: '010 055 5115', students: stats.burgersfort },
+{ name: 'Polokwane Campus', address: '17 Rissik Street CNR Landros Mare, next to Engine Garage', tel: '015 008 5102', students: stats.polokwane },
                 ].map(campus => (
                   <div key={campus.name} className="bg-white rounded-xl shadow-sm p-6">
                     <div className="flex items-center gap-3 mb-3">
