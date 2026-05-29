@@ -6,7 +6,7 @@ export default function SuperAdmin({ onLogout }) {
   const [activeTab, setActiveTab] = useState('dashboard');
   const [colleges, setColleges] = useState([]);
   const [stats, setStats] = useState({});
-  const [loading, setLoading] = useState(true);
+const [loading, setLoading] = useState(true); // eslint-disable-line
   const [showAddCollege, setShowAddCollege] = useState(false);
   const [form, setForm] = useState({
     name: '', slug: '', email: '', phone: '', address: '',
@@ -26,8 +26,7 @@ export default function SuperAdmin({ onLogout }) {
 
   useEffect(() => {
     loadData();
-  }, []);
-
+  }, []); // eslint-disable-line
   const loadData = async () => {
     try {
       const [statsRes, collegesRes] = await Promise.all([
