@@ -47,17 +47,17 @@ export default function Dashboard({ onLogout }) {
   };
 
   const navItems = [
-    { key: 'dashboard', icon: '📊', label: 'Dashboard', show: true },
-    { key: 'register', icon: '📝', label: 'Register Student', show: permissions.canRegister !== false },
-    { key: 'students', icon: '👥', label: 'Students', show: true },
-    { key: 'proof', icon: '📄', label: 'Proof of Registration', show: true },
-    { key: 'marks', icon: '🎓', label: 'Marks & Assessments', show: permissions.canCaptureMarks !== false },
-    { key: 'finance', icon: '💰', label: 'Finance', show: permissions.canViewFinance !== false },
-    { key: 'attendance', icon: '📅', label: 'Attendance', show: permissions.canTakeAttendance !== false },
-    { key: 'reports', icon: '📊', label: 'Reports & Exports', show: permissions.canExport !== false },
-    { key: 'communication', icon: '💬', label: 'Communication', show: permissions.canCommunicate !== false },
-    { key: 'manual', icon: '📖', label: 'User Manual', show: true },
-  ].filter(item => item.show);
+  { key: 'dashboard', icon: '📊', label: 'Dashboard', show: true },
+  { key: 'register', icon: '📝', label: 'Register Student', show: role === 'admin' || role === 'superadmin' },
+  { key: 'students', icon: '👥', label: 'Students', show: role !== 'lecturer' },
+  { key: 'proof', icon: '📄', label: 'Proof of Registration', show: role !== 'lecturer' },
+  { key: 'marks', icon: '🎓', label: 'Marks & Assessments', show: true },
+  { key: 'finance', icon: '💰', label: 'Finance', show: role === 'admin' || role === 'superadmin' || role === 'principal' },
+  { key: 'attendance', icon: '📅', label: 'Attendance', show: true },
+  { key: 'reports', icon: '📊', label: 'Reports & Exports', show: role === 'admin' || role === 'superadmin' || role === 'principal' },
+  { key: 'communication', icon: '💬', label: 'Communication', show: role === 'admin' || role === 'superadmin' },
+  { key: 'manual', icon: '📖', label: 'User Manual', show: true },
+].filter(item => item.show);
 
   const pageTitles = {
     dashboard: 'Dashboard',
@@ -257,9 +257,19 @@ export default function Dashboard({ onLogout }) {
             </div>
           )}
 
-          {activePage === 'register' && (
-            <Register onRegistered={() => setActivePage('students')} />
-          )}
+          {activePage === 'register' && (role === 'admin' || role === 'superadmin') && (
+  <Register onRegistered={() => setActivePage('students')} />
+)}
+
+{activePage === 'register' && role !== 'admin' && role !== 'superadmin' && (
+  <div className="p-8">
+    <div className="bg-red-50 border border-red-200 rounded-xl p-8 text-center">
+      <p className="text-4xl mb-3">🚫</p>
+      <p className="text-red-700 font-semibold">Access Denied</p>
+      <p className="text-red-500 text-sm mt-2">You do not have permission to register students.</p>
+    </div>
+  </div>
+)}
 
           {activePage === 'students' && (
             <Students onSelectStudent={(student) => {
@@ -276,10 +286,37 @@ export default function Dashboard({ onLogout }) {
           )}
 
           {activePage === 'marks' && <Marks />}
-          {activePage === 'finance' && <Finance />}
+         {activePage === 'finance' && (role === 'admin' || role === 'superadmin' || role === 'principal') && <Finance />}
+{activePage === 'finance' && role === 'lecturer' && (
+  <div className="p-8">
+    <div className="bg-red-50 border border-red-200 rounded-xl p-8 text-center">
+      <p className="text-4xl mb-3">🚫</p>
+      <p className="text-red-700 font-semibold">Access Denied</p>
+      <p className="text-red-500 text-sm mt-2">Lecturers do not have access to finance information.</p>
+    </div>
+  </div>
+)}
           {activePage === 'attendance' && <Attendance />}
-          {activePage === 'reports' && <Reports />}
-          {activePage === 'communication' && <Communication />}
+         {activePage === 'reports' && (role === 'admin' || role === 'superadmin' || role === 'principal') && <Reports />}
+{activePage === 'reports' && role === 'lecturer' && (
+  <div className="p-8">
+    <div className="bg-red-50 border border-red-200 rounded-xl p-8 text-center">
+      <p className="text-4xl mb-3">🚫</p>
+      <p className="text-red-700 font-semibold">Access Denied</p>
+      <p className="text-red-500 text-sm mt-2">Lecturers do not have access to reports.</p>
+    </div>
+  </div>
+)}
+         {activePage === 'communication' && (role === 'admin' || role === 'superadmin') && <Communication />}
+{activePage === 'communication' && role !== 'admin' && role !== 'superadmin' && (
+  <div className="p-8">
+    <div className="bg-red-50 border border-red-200 rounded-xl p-8 text-center">
+      <p className="text-4xl mb-3">🚫</p>
+      <p className="text-red-700 font-semibold">Access Denied</p>
+      <p className="text-red-500 text-sm mt-2">You do not have permission to send communications.</p>
+    </div>
+  </div>
+)}
           {activePage === 'manual' && <UserManual />}
 
         </div>
