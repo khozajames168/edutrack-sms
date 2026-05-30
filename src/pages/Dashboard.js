@@ -9,12 +9,32 @@ import Reports from './Reports';
 import Communication from './Communication';
 import UserManual from './UserManual';
 import React, { useState, useEffect } from 'react';
+import { logout } from '../utils/api';
 
 
 export default function Dashboard() {
- const [activePage, setActivePage] = useState('dashboard');
+const [activePage, setActivePage] = useState('dashboard');
 const [selectedStudent, setSelectedStudent] = useState(null);
 const [sidebarOpen, setSidebarOpen] = useState(false);
+const [permissions, setPermissions] = useState({
+  canRegister: true,
+  canViewStudents: true,
+  canCaptureMarks: true,
+  canViewFinance: true,
+  canEditFinance: true,
+  canTakeAttendance: true,
+  canExport: true,
+  canCommunicate: true,
+});
+const [userRole, setUserRole] = useState('admin');
+const [notifications, setNotifications] = useState([]);
+const [showNotifications, setShowNotifications] = useState(false);
+const [notifications, setNotifications] = useState([]);
+const [showNotifications, setShowNotifications] = useState(false);
+
+const admin = JSON.parse(localStorage.getItem('admin') || '{}');
+const permissions = JSON.parse(localStorage.getItem('permissions') || '{}');
+const role = localStorage.getItem('role') || 'admin';
 const [stats, setStats] = useState({
   totalStudents: 0,
   activeStudents: 0,
@@ -26,7 +46,44 @@ const [stats, setStats] = useState({
 
 useEffect(() => {
   loadStats();
-}, []);
+  loadPermissions();
+  loadNotifications();
+}, []); // eslint-disable-line
+
+const loadPermissions = () => {
+  try {
+    const token = localStorage.getItem('token');
+    if (token) {
+      const payload = JSON.parse(atob(token.split('.')[1]));
+      setUserRole(payload.role || 'admin');
+      setPermissions({
+        canRegister: ['admin', 'superadmin'].includes(payload.role),
+        canViewStudents: true,
+        canCaptureMarks: ['admin', 'superadmin', 'lecturer'].includes(payload.role),
+        canViewFinance: ['admin', 'superadmin', 'principal'].includes(payload.role),
+        canEditFinance: ['admin', 'superadmin'].includes(payload.role),
+        canTakeAttendance: ['admin', 'superadmin', 'lecturer'].includes(payload.role),
+        canExport: ['admin', 'superadmin', 'principal'].includes(payload.role),
+        canCommunicate: ['admin', 'superadmin'].includes(payload.role),
+      });
+    }
+  } catch (err) {
+    console.error(err);
+  }
+};
+
+const loadNotifications = async () => {
+  try {
+    const token = localStorage.getItem('token');
+    const res = await fetch(`${process.env.REACT_APP_API_URL || 'http://localhost:5000'}/api/notifications`, {
+      headers: { 'Authorization': `Bearer ${token}` }
+    });
+    const data = await res.json();
+    if (Array.isArray(data)) setNotifications(data);
+  } catch (err) {
+    console.error(err);
+  }
+};
 
 const loadStats = async () => {
   try {
@@ -36,19 +93,31 @@ const loadStats = async () => {
   } catch (err) {
     console.error(err);
   }
+
+  const loadStats = async () => {
+  try {
+    const { getStats, getNotifications } = await import('../utils/api');
+    const data = await getStats();
+    if (data && !data.error) setStats(data);
+    const notifs = await getNotifications();
+    if (Array.isArray(notifs)) setNotifications(notifs);
+  } catch (err) {
+    console.error(err);
+  }
+};
 };
  const navItems = [
-    { key: 'dashboard', icon: '📊', label: 'Dashboard' },
-    { key: 'register', icon: '📝', label: 'Register Student' },
-    { key: 'students', icon: '👥', label: 'Students' },
-    { key: 'proof', icon: '📄', label: 'Proof of Registration' },
-    { key: 'marks', icon: '🎓', label: 'Marks & Assessments' },
-    { key: 'finance', icon: '💰', label: 'Finance' },
-    { key: 'attendance', icon: '📅', label: 'Attendance' },
-    { key: 'reports', icon: '📊', label: 'Reports & Exports' },
-    { key: 'communication', icon: '💬', label: 'Communication' },
-    { key: 'manual', icon: '📖', label: 'User Manual' },
-  ];
+  { key: 'dashboard', icon: '📊', label: 'Dashboard', show: true },
+  { key: 'register', icon: '📝', label: 'Register Student', show: permissions.canRegister },
+  { key: 'students', icon: '👥', label: 'Students', show: permissions.canViewStudents },
+  { key: 'proof', icon: '📄', label: 'Proof of Registration', show: permissions.canViewStudents },
+  { key: 'marks', icon: '🎓', label: 'Marks & Assessments', show: permissions.canCaptureMarks },
+  { key: 'finance', icon: '💰', label: 'Finance', show: permissions.canViewFinance },
+  { key: 'attendance', icon: '📅', label: 'Attendance', show: permissions.canTakeAttendance },
+  { key: 'reports', icon: '📊', label: 'Reports & Exports', show: permissions.canExport },
+  { key: 'communication', icon: '💬', label: 'Communication', show: permissions.canCommunicate },
+  { key: 'manual', icon: '📖', label: 'User Manual', show: true },
+];
 
   const pageTitles = {
     dashboard: 'Dashboard',
@@ -74,19 +143,19 @@ const loadStats = async () => {
         {/* Nav */}
         <nav className="flex-1 p-4 overflow-y-auto">
           <ul className="space-y-1">
-            {navItems.map(item => (
-              <li key={item.key}
-                onClick={() => setActivePage(item.key)}
-                className="rounded-lg px-4 py-3 cursor-pointer flex items-center gap-3 text-sm transition"
-                style={{
-                  background: activePage === item.key ? '#E91E8C' : 'transparent',
-                  color: 'white',
-                  fontWeight: activePage === item.key ? '600' : '400',
-                }}>
-                <span>{item.icon}</span>
-                {item.label}
-              </li>
-            ))}
+           {navItems.filter(item => item.show).map(item => (
+  <li key={item.key}
+    onClick={() => { setActivePage(item.key); setSidebarOpen(false); }}
+    className="rounded-lg px-4 py-3 cursor-pointer flex items-center gap-3 text-sm transition"
+    style={{
+      background: activePage === item.key ? '#E91E8C' : 'transparent',
+      color: 'white',
+      fontWeight: activePage === item.key ? '600' : '400',
+    }}>
+    <span>{item.icon}</span>
+    {item.label}
+  </li>
+))}
           </ul>
         </nav>
 
@@ -103,27 +172,109 @@ const loadStats = async () => {
 
         {/* Topbar */}
         <div className="bg-white shadow-sm px-4 md:px-8 py-4 flex items-center justify-between">
-          <div className="flex items-center gap-3">
-  <button onClick={() => setSidebarOpen(!sidebarOpen)}
-    className="md:hidden p-2 rounded-lg"
-    style={{ background: '#1B1F8A', color: 'white' }}>
-    ☰
-  </button>
-  <div>
+         <div className="flex items-center gap-3">
+  {/* Notifications */}
+  <div className="relative">
+    <button onClick={() => setShowNotifications(!showNotifications)}
+      className="relative p-2 rounded-lg hover:bg-gray-100">
+      🔔
+      {notifications.filter(n => !n.is_read).length > 0 && (
+        <span className="absolute top-0 right-0 w-4 h-4 rounded-full text-white text-xs flex items-center justify-center"
+          style={{ background: '#E91E8C' }}>
+          {notifications.filter(n => !n.is_read).length}
+        </span>
+      )}
+    </button>
+    {showNotifications && (
+      <div className="absolute right-0 top-10 w-72 bg-white rounded-xl shadow-xl border border-gray-100 z-50">
+        <div className="p-3 border-b border-gray-100 flex items-center justify-between">
+          <p className="font-semibold text-sm text-gray-800">Notifications</p>
+          <button onClick={() => setShowNotifications(false)} className="text-gray-400 text-lg">×</button>
+        </div>
+        <div className="max-h-64 overflow-y-auto">
+          {notifications.length === 0 ? (
+            <p className="text-sm text-gray-500 p-4 text-center">No notifications</p>
+          ) : (
+            notifications.slice(0, 10).map(n => (
+              <div key={n.id} className="p-3 border-b border-gray-50 hover:bg-gray-50"
+                style={{ background: n.is_read ? 'white' : '#f0f4ff' }}>
+                <p className="text-sm font-medium text-gray-800">{n.title}</p>
+                <p className="text-xs text-gray-500 mt-1">{n.message}</p>
+              </div>
+            ))
+          )}
+        </div>
+      </div>
+    )}
+  </div>
+  <div className="text-right hidden md:block">
+    <p className="text-sm font-medium text-gray-700 capitalize">{userRole}</p>
+    <p className="text-xs text-gray-400">SA Shepherd College</p>
+  </div>
+  <div className="w-10 h-10 rounded-full flex items-center justify-center text-white font-bold text-sm"
+    style={{ background: '#E91E8C' }}>
+    {userRole[0].toUpperCase()}
+  </div>
+</div>
     <h2 className="text-lg font-bold" style={{ color: '#1B1F8A' }}>
       {pageTitles[activePage]}
     </h2>
     <p className="text-xs text-gray-400 hidden md:block">SA Shepherd College Management System</p>
   </div>
 </div>
-          <div className="flex items-center gap-3">
-            <div className="text-right">
-              <p className="text-sm font-medium text-gray-700">Administrator</p>
-              <p className="text-xs text-gray-400">admin@sashepherdcollege.org.za</p>
-            </div>
-            <div className="w-10 h-10 rounded-full flex items-center justify-center text-white font-bold text-sm"
-              style={{ background: '#E91E8C' }}>A</div>
-          </div>
+          <div className="flex items-center gap-4">
+  {/* Notifications */}
+  <div className="relative">
+    <button onClick={() => setShowNotifications(!showNotifications)}
+      className="relative p-2 rounded-lg hover:bg-gray-100">
+      🔔
+      {notifications.filter(n => !n.is_read).length > 0 && (
+        <span className="absolute -top-1 -right-1 w-5 h-5 rounded-full text-white text-xs flex items-center justify-center"
+          style={{ background: '#E91E8C' }}>
+          {notifications.filter(n => !n.is_read).length}
+        </span>
+      )}
+    </button>
+    {showNotifications && (
+      <div className="absolute right-0 top-10 w-80 bg-white rounded-xl shadow-xl border border-gray-100 z-50">
+        <div className="p-4 border-b">
+          <p className="font-semibold text-gray-800">Notifications</p>
+        </div>
+        <div className="max-h-64 overflow-y-auto">
+          {notifications.length === 0 ? (
+            <p className="p-4 text-sm text-gray-500">No notifications</p>
+          ) : (
+            notifications.slice(0, 10).map(n => (
+              <div key={n.id} className="p-3 border-b hover:bg-gray-50"
+                style={{ background: n.is_read ? 'white' : '#f0f4ff' }}>
+                <p className="text-sm font-medium text-gray-800">{n.title}</p>
+                <p className="text-xs text-gray-500 mt-1">{n.message}</p>
+              </div>
+            ))
+          )}
+        </div>
+      </div>
+    )}
+  </div>
+
+  <div className="text-right">
+    <p className="text-sm font-medium text-gray-700">{admin.name || 'Administrator'}</p>
+    <p className="text-xs px-2 py-0.5 rounded-full text-white inline-block capitalize"
+      style={{ background: role === 'principal' ? '#8DC63F' : role === 'lecturer' ? '#E91E8C' : '#1B1F8A' }}>
+      {role}
+    </p>
+  </div>
+  <div className="w-10 h-10 rounded-full flex items-center justify-center text-white font-bold text-sm"
+    style={{ background: '#E91E8C' }}>
+    {admin.name?.[0] || 'A'}
+  </div>
+  {onLogout && (
+    <button onClick={() => { logout(); onLogout(); }}
+      className="text-xs text-gray-400 hover:text-red-500 ml-2">
+      Sign Out
+    </button>
+  )}
+</div>
         </div>
 
         {/* Page Content */}
