@@ -6,11 +6,11 @@ export default function SuperAdmin({ onLogout }) {
   const [activeTab, setActiveTab] = useState('dashboard');
   const [colleges, setColleges] = useState([]);
   const [stats, setStats] = useState({});
-const [loading, setLoading] = useState(true); // eslint-disable-line
- const [showAddCollege, setShowAddCollege] = useState(false);
-const [showAddInvoice, setShowAddInvoice] = useState(false);
-const [invoices, setInvoices] = useState([]);
-const [invoiceForm, setInvoiceForm] = useState({ collegeId: '', amount: '2500', dueDate: '' });
+  const [invoices, setInvoices] = useState([]);
+  const [loading, setLoading] = useState(true); // eslint-disable-line
+  const [showAddCollege, setShowAddCollege] = useState(false);
+  const [showAddInvoice, setShowAddInvoice] = useState(false);
+  const [invoiceForm, setInvoiceForm] = useState({ collegeId: '', amount: '2500', dueDate: '' });
   const [form, setForm] = useState({
     name: '', slug: '', email: '', phone: '', address: '',
     primaryColor: '#1B1F8A', secondaryColor: '#E91E8C', accentColor: '#8DC63F',
@@ -21,7 +21,6 @@ const [invoiceForm, setInvoiceForm] = useState({ collegeId: '', amount: '2500', 
   });
 
   const token = localStorage.getItem('supertoken');
-
   const headers = {
     'Content-Type': 'application/json',
     'Authorization': `Bearer ${token}`,
@@ -30,55 +29,25 @@ const [invoiceForm, setInvoiceForm] = useState({ collegeId: '', amount: '2500', 
   useEffect(() => {
     loadData();
   }, []); // eslint-disable-line
- const loadData = async () => {
-  try {
-    const [statsRes, collegesRes, invoicesRes] = await Promise.all([
-      fetch(`${API_URL}/api/super/stats`, { headers }),
-      fetch(`${API_URL}/api/super/colleges`, { headers }),
-      fetch(`${API_URL}/api/super/invoices`, { headers }),
-    ]);
-    const statsData = await statsRes.json();
-    const collegesData = await collegesRes.json();
-    const invoicesData = await invoicesRes.json();
-    if (!statsData.error) setStats(statsData);
-    if (Array.isArray(collegesData)) setColleges(collegesData);
-    if (Array.isArray(invoicesData)) setInvoices(invoicesData);
-  } catch (err) {
-    console.error(err);
-  }
-  setLoading(false); // eslint-disable-line
-};
 
-const markInvoicePaid = async (invoiceId) => {
-  try {
-    await fetch(`${API_URL}/api/super/invoices/${invoiceId}/pay`, {
-      method: 'PATCH',
-      headers,
-      body: JSON.stringify({ paymentMethod: 'EFT', reference: `PAY-${Date.now()}` }),
-    });
-    loadData();
-  } catch (err) {
-    console.error(err);
-  }
-};
-
-const handleAddInvoice = async () => {
-  try {
-    const res = await fetch(`${API_URL}/api/super/invoices`, {
-      method: 'POST',
-      headers,
-      body: JSON.stringify(invoiceForm),
-    });
-    const data = await res.json();
-    if (data.id) {
-      alert('✅ Invoice generated successfully!');
-      setShowAddInvoice(false);
-      loadData();
+  const loadData = async () => {
+    try {
+      const [statsRes, collegesRes, invoicesRes] = await Promise.all([
+        fetch(`${API_URL}/api/super/stats`, { headers }),
+        fetch(`${API_URL}/api/super/colleges`, { headers }),
+        fetch(`${API_URL}/api/super/invoices`, { headers }),
+      ]);
+      const statsData = await statsRes.json();
+      const collegesData = await collegesRes.json();
+      const invoicesData = await invoicesRes.json();
+      if (!statsData.error) setStats(statsData);
+      if (Array.isArray(collegesData)) setColleges(collegesData);
+      if (Array.isArray(invoicesData)) setInvoices(invoicesData);
+    } catch (err) {
+      console.error(err);
     }
-  } catch (err) {
-    console.error(err);
-  }
-};
+    setLoading(false);
+  };
 
   const handleChange = (e) => {
     setForm(prev => ({ ...prev, [e.target.name]: e.target.value }));
@@ -126,6 +95,37 @@ const handleAddInvoice = async () => {
     }
   };
 
+  const markInvoicePaid = async (invoiceId) => {
+    try {
+      await fetch(`${API_URL}/api/super/invoices/${invoiceId}/pay`, {
+        method: 'PATCH',
+        headers,
+        body: JSON.stringify({ paymentMethod: 'EFT', reference: `PAY-${Date.now()}` }),
+      });
+      loadData();
+    } catch (err) {
+      console.error(err);
+    }
+  };
+
+  const handleAddInvoice = async () => {
+    try {
+      const res = await fetch(`${API_URL}/api/super/invoices`, {
+        method: 'POST',
+        headers,
+        body: JSON.stringify(invoiceForm),
+      });
+      const data = await res.json();
+      if (data.id) {
+        alert('✅ Invoice generated successfully!');
+        setShowAddInvoice(false);
+        loadData();
+      }
+    } catch (err) {
+      console.error(err);
+    }
+  };
+
   const inputClass = "w-full border border-gray-300 rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:ring-2";
   const labelClass = "block text-sm font-medium text-gray-700 mb-1";
 
@@ -141,11 +141,11 @@ const handleAddInvoice = async () => {
         <nav className="flex-1 p-4">
           <ul className="space-y-1">
             {[
-  { key: 'dashboard', icon: '📊', label: 'Dashboard' },
-  { key: 'colleges', icon: '🏫', label: 'Colleges' },
-  { key: 'invoices', icon: '💳', label: 'Invoices' },
-  { key: 'add', icon: '➕', label: 'Add College' },
-].map(item => (
+              { key: 'dashboard', icon: '📊', label: 'Dashboard' },
+              { key: 'colleges', icon: '🏫', label: 'Colleges' },
+              { key: 'invoices', icon: '💳', label: 'Invoices' },
+              { key: 'add', icon: '➕', label: 'Add College' },
+            ].map(item => (
               <li key={item.key}
                 onClick={() => { setActiveTab(item.key); if (item.key === 'add') setShowAddCollege(true); }}
                 className="rounded-lg px-4 py-3 cursor-pointer flex items-center gap-3 text-sm transition"
@@ -159,8 +159,7 @@ const handleAddInvoice = async () => {
           </ul>
         </nav>
         <div className="p-4 border-t border-gray-700">
-          <button onClick={onLogout}
-            className="w-full py-2 text-sm text-gray-400 hover:text-white">
+          <button onClick={onLogout} className="w-full py-2 text-sm text-gray-400 hover:text-white">
             Sign Out
           </button>
         </div>
@@ -170,7 +169,7 @@ const handleAddInvoice = async () => {
       <div className="flex-1 flex flex-col overflow-hidden">
         <div className="bg-white shadow-sm px-8 py-4 flex items-center justify-between">
           <h2 className="text-lg font-bold text-gray-800">
-            {activeTab === 'dashboard' ? 'Dashboard' : activeTab === 'colleges' ? 'All Colleges' : 'Add College'}
+            {activeTab === 'dashboard' ? 'Dashboard' : activeTab === 'colleges' ? 'All Colleges' : activeTab === 'invoices' ? 'Invoices' : 'Add College'}
           </h2>
           <span className="text-sm text-gray-500">superadmin@edutrack.co.za</span>
         </div>
@@ -194,7 +193,6 @@ const handleAddInvoice = async () => {
                   </div>
                 ))}
               </div>
-
               <div className="bg-white rounded-xl shadow-sm p-6">
                 <h3 className="font-bold text-gray-800 mb-4">Active Colleges</h3>
                 <table className="w-full">
@@ -229,7 +227,7 @@ const handleAddInvoice = async () => {
             </div>
           )}
 
-          {/* Colleges List */}
+          {/* Colleges */}
           {activeTab === 'colleges' && (
             <div>
               <div className="flex justify-between mb-6">
@@ -260,7 +258,6 @@ const handleAddInvoice = async () => {
                       <p>🏛️ DHET: {college.dhet_number}</p>
                       <p>👥 Students: <strong>{college.studentCount}</strong></p>
                       <p>💰 Monthly: <strong>R{parseFloat(college.subscription_amount).toLocaleString()}</strong></p>
-                      <p>💵 Total Revenue: <strong>R{college.totalRevenue?.toLocaleString()}</strong></p>
                     </div>
                     <button onClick={() => toggleStatus(college)}
                       className="w-full py-2 rounded-lg text-sm font-medium border"
@@ -276,10 +273,7 @@ const handleAddInvoice = async () => {
             </div>
           )}
 
-        </div>
-      </div>
-
-      {/* Invoices */}
+          {/* Invoices */}
           {activeTab === 'invoices' && (
             <div>
               <div className="flex justify-between mb-6">
@@ -290,7 +284,6 @@ const handleAddInvoice = async () => {
                   ➕ Generate Invoice
                 </button>
               </div>
-
               <div className="grid grid-cols-3 gap-4 mb-6">
                 <div className="bg-white rounded-xl shadow-sm p-5 border-t-4" style={{ borderColor: '#1B1F8A' }}>
                   <p className="text-sm text-gray-500">Total Invoiced</p>
@@ -311,7 +304,6 @@ const handleAddInvoice = async () => {
                   </p>
                 </div>
               </div>
-
               <div className="bg-white rounded-xl shadow-sm overflow-hidden">
                 <table className="w-full">
                   <thead style={{ background: '#0f172a' }}>
@@ -342,8 +334,7 @@ const handleAddInvoice = async () => {
                         </td>
                         <td className="px-4 py-3">
                           {invoice.status === 'unpaid' && (
-                            <button
-                              onClick={() => markInvoicePaid(invoice.id)}
+                            <button onClick={() => markInvoicePaid(invoice.id)}
                               className="text-xs px-3 py-1 rounded-lg text-white font-medium"
                               style={{ background: '#8DC63F' }}>
                               Mark Paid
@@ -358,6 +349,9 @@ const handleAddInvoice = async () => {
             </div>
           )}
 
+        </div>
+      </div>
+
       {/* Add College Modal */}
       {showAddCollege && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
@@ -366,10 +360,7 @@ const handleAddInvoice = async () => {
               <h3 className="text-xl font-bold text-gray-800">Add New College</h3>
               <button onClick={() => setShowAddCollege(false)} className="text-gray-400 hover:text-gray-600 text-2xl">×</button>
             </div>
-
             <div className="space-y-6">
-
-              {/* College Details */}
               <div>
                 <h4 className="font-semibold text-gray-700 mb-3 pb-2 border-b">College Information</h4>
                 <div className="grid grid-cols-2 gap-4">
@@ -388,7 +379,7 @@ const handleAddInvoice = async () => {
                   <div><label className={labelClass}>Monthly Subscription (R)</label>
                     <input name="subscriptionAmount" value={form.subscriptionAmount} onChange={handleChange} className={inputClass} /></div>
                   <div className="flex gap-3 items-end">
-                    <div><label className={labelClass}>Primary Color</label>
+                    <div><label className={labelClass}>Primary</label>
                       <input name="primaryColor" type="color" value={form.primaryColor} onChange={handleChange} className="w-12 h-10 rounded cursor-pointer" /></div>
                     <div><label className={labelClass}>Secondary</label>
                       <input name="secondaryColor" type="color" value={form.secondaryColor} onChange={handleChange} className="w-12 h-10 rounded cursor-pointer" /></div>
@@ -397,8 +388,6 @@ const handleAddInvoice = async () => {
                   </div>
                 </div>
               </div>
-
-              {/* Admin Account */}
               <div>
                 <h4 className="font-semibold text-gray-700 mb-3 pb-2 border-b">Admin Account</h4>
                 <div className="grid grid-cols-2 gap-4">
@@ -410,8 +399,6 @@ const handleAddInvoice = async () => {
                     <input name="adminPassword" type="password" value={form.adminPassword} onChange={handleChange} className={inputClass} placeholder="Strong password" /></div>
                 </div>
               </div>
-
-              {/* Campuses */}
               <div>
                 <h4 className="font-semibold text-gray-700 mb-3 pb-2 border-b">Campus 1</h4>
                 <div className="grid grid-cols-3 gap-4">
@@ -423,7 +410,6 @@ const handleAddInvoice = async () => {
                     <input name="campus1Phone" value={form.campus1Phone} onChange={handleChange} className={inputClass} placeholder="Phone" /></div>
                 </div>
               </div>
-
               <div>
                 <h4 className="font-semibold text-gray-700 mb-3 pb-2 border-b">Campus 2 (Optional)</h4>
                 <div className="grid grid-cols-3 gap-4">
@@ -435,9 +421,7 @@ const handleAddInvoice = async () => {
                     <input name="campus2Phone" value={form.campus2Phone} onChange={handleChange} className={inputClass} placeholder="Phone" /></div>
                 </div>
               </div>
-
             </div>
-
             <div className="flex gap-4 mt-8">
               <button onClick={() => setShowAddCollege(false)}
                 className="flex-1 py-3 border border-gray-300 rounded-lg text-gray-700 font-medium">
@@ -452,53 +436,52 @@ const handleAddInvoice = async () => {
           </div>
         </div>
       )}
+
+      {/* Generate Invoice Modal */}
+      {showAddInvoice && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-white rounded-2xl shadow-2xl p-8 w-full max-w-md">
+            <h3 className="text-lg font-bold mb-6 text-gray-800">Generate Invoice</h3>
+            <div className="space-y-4">
+              <div>
+                <label className={labelClass}>College</label>
+                <select value={invoiceForm.collegeId}
+                  onChange={(e) => setInvoiceForm(prev => ({ ...prev, collegeId: e.target.value }))}
+                  className={inputClass}>
+                  <option value="">Select college</option>
+                  {colleges.map(c => (
+                    <option key={c.id} value={c.id}>{c.name}</option>
+                  ))}
+                </select>
+              </div>
+              <div>
+                <label className={labelClass}>Amount (R)</label>
+                <input type="number" value={invoiceForm.amount}
+                  onChange={(e) => setInvoiceForm(prev => ({ ...prev, amount: e.target.value }))}
+                  className={inputClass} placeholder="2500" />
+              </div>
+              <div>
+                <label className={labelClass}>Due Date</label>
+                <input type="date" value={invoiceForm.dueDate}
+                  onChange={(e) => setInvoiceForm(prev => ({ ...prev, dueDate: e.target.value }))}
+                  className={inputClass} />
+              </div>
+            </div>
+            <div className="flex gap-4 mt-6">
+              <button onClick={() => setShowAddInvoice(false)}
+                className="flex-1 py-3 border border-gray-300 rounded-lg text-gray-700">
+                Cancel
+              </button>
+              <button onClick={handleAddInvoice}
+                className="flex-1 py-3 text-white font-bold rounded-lg"
+                style={{ background: '#1B1F8A' }}>
+                Generate Invoice
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
     </div>
-    {/* Generate Invoice Modal */}
-{showAddInvoice && (
-  <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-    <div className="bg-white rounded-2xl shadow-2xl p-8 w-full max-w-md">
-      <h3 className="text-lg font-bold mb-6 text-gray-800">Generate Invoice</h3>
-      <div className="space-y-4">
-        <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">College</label>
-          <select value={invoiceForm.collegeId}
-            onChange={(e) => setInvoiceForm(prev => ({ ...prev, collegeId: e.target.value }))}
-            className="w-full border border-gray-300 rounded-lg px-4 py-2.5 text-sm focus:outline-none">
-            <option value="">Select college</option>
-            {colleges.map(c => (
-              <option key={c.id} value={c.id}>{c.name}</option>
-            ))}
-          </select>
-        </div>
-        <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">Amount (R)</label>
-          <input type="number"
-            value={invoiceForm.amount}
-            onChange={(e) => setInvoiceForm(prev => ({ ...prev, amount: e.target.value }))}
-            className="w-full border border-gray-300 rounded-lg px-4 py-2.5 text-sm focus:outline-none"
-            placeholder="2500" />
-        </div>
-        <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">Due Date</label>
-          <input type="date"
-            value={invoiceForm.dueDate}
-            onChange={(e) => setInvoiceForm(prev => ({ ...prev, dueDate: e.target.value }))}
-            className="w-full border border-gray-300 rounded-lg px-4 py-2.5 text-sm focus:outline-none" />
-        </div>
-      </div>
-      <div className="flex gap-4 mt-6">
-        <button onClick={() => setShowAddInvoice(false)}
-          className="flex-1 py-3 border border-gray-300 rounded-lg text-gray-700">
-          Cancel
-        </button>
-        <button onClick={handleAddInvoice}
-          className="flex-1 py-3 text-white font-bold rounded-lg"
-          style={{ background: '#1B1F8A' }}>
-          Generate Invoice
-        </button>
-      </div>
-    </div>
-  </div>
-)}
   );
 }
