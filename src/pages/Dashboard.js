@@ -27,7 +27,7 @@ export default function Dashboard({ onLogout }) {
   });
 
   const [admin] = useState(() => JSON.parse(localStorage.getItem('admin') || '{}'));
-const [permissions] = useState(() => JSON.parse(localStorage.getItem('permissions') || '{}'));
+const [permissions] = useState(() => JSON.parse(localStorage.getItem('permissions') || '{}')); // eslint-disable-line
 const [role] = useState(() => localStorage.getItem('role') || 'admin');
 
   useEffect(() => {
