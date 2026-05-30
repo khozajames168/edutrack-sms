@@ -49,22 +49,47 @@ export default function Communication() {
   const handleSend = async () => {
     if (!message.trim() || selectedStudents.length === 0) return;
     setLoading(true);
-    await new Promise(r => setTimeout(r, 2000));
-    const record = {
-      id: Date.now(),
-      type: activeTab.toUpperCase(),
-      message,
-      recipients: selectedStudents.length,
-      date: new Date().toLocaleDateString('en-ZA'),
-      time: new Date().toLocaleTimeString('en-ZA'),
-      status: 'Sent',
-    };
-    setHistory(prev => [record, ...prev]);
-    setSent(true);
-    setMessage('');
-    setSelectedStudents([]);
+    try {
+      const selectedStudentData = students.filter(s => selectedStudents.includes(s.id));
+      const phoneNumbers = selectedStudentData.map(s => s.cell_number).filter(Boolean);
+
+      if (activeTab === 'sms') {
+        const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:5000';
+        const token = localStorage.getItem('token');
+        const res = await fetch(`${API_URL}/api/sms/send`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}`,
+          },
+          body: JSON.stringify({ recipients: phoneNumbers, message }),
+        });
+        const data = await res.json();
+        if (!data.success) {
+          alert('SMS Error: ' + (data.error || 'Failed to send'));
+          setLoading(false);
+          return;
+        }
+      }
+
+      const record = {
+        id: Date.now(),
+        type: activeTab.toUpperCase(),
+        message,
+        recipients: selectedStudents.length,
+        date: new Date().toLocaleDateString('en-ZA'),
+        time: new Date().toLocaleTimeString('en-ZA'),
+        status: 'Sent',
+      };
+      setHistory(prev => [record, ...prev]);
+      setSent(true);
+      setMessage('');
+      setSelectedStudents([]);
+      setTimeout(() => setSent(false), 3000);
+    } catch (err) {
+      alert('Error: ' + err.message);
+    }
     setLoading(false);
-    setTimeout(() => setSent(false), 3000);
   };
 
   const templates = [
