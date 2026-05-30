@@ -20,6 +20,9 @@ export default function Login({ onLogin, onStudentPortal, onSuperAdmin }) {
       if (data.token) {
         localStorage.setItem('token', data.token);
         localStorage.setItem('admin', JSON.stringify(data.admin));
+        localStorage.setItem('permissions', JSON.stringify(data.permissions || {}));
+        localStorage.setItem('college', JSON.stringify(data.college || {}));
+        localStorage.setItem('role', data.admin.role || 'admin');
         onLogin();
       } else {
         setError(data.error || 'Invalid email or password');
@@ -29,7 +32,6 @@ export default function Login({ onLogin, onStudentPortal, onSuperAdmin }) {
     }
     setLoading(false);
   };
-
   return (
     <div className="min-h-screen flex">
 
