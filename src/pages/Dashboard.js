@@ -26,9 +26,9 @@ export default function Dashboard({ onLogout }) {
     polokwane: 0,
   });
 
-  const admin = JSON.parse(localStorage.getItem('admin') || '{}');
-  const permissions = JSON.parse(localStorage.getItem('permissions') || '{}');
-  const role = localStorage.getItem('role') || 'admin';
+  const [admin] = useState(() => JSON.parse(localStorage.getItem('admin') || '{}'));
+const [permissions] = useState(() => JSON.parse(localStorage.getItem('permissions') || '{}'));
+const [role] = useState(() => localStorage.getItem('role') || 'admin');
 
   useEffect(() => {
     loadStats();
