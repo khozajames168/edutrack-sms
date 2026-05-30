@@ -16,6 +16,7 @@ export default function Dashboard() {
 const [activePage, setActivePage] = useState('dashboard');
 const [selectedStudent, setSelectedStudent] = useState(null);
 const [sidebarOpen, setSidebarOpen] = useState(false);
+const [showNotifications, setShowNotifications] = useState(false);
 const [permissions, setPermissions] = useState({
   canRegister: true,
   canViewStudents: true,
@@ -28,8 +29,6 @@ const [permissions, setPermissions] = useState({
 });
 const [userRole, setUserRole] = useState('admin');
 const [notifications, setNotifications] = useState([]);
-const [showNotifications, setShowNotifications] = useState(false);
-const [showNotifications, setShowNotifications] = useState(false);
 
 const admin = JSON.parse(localStorage.getItem('admin') || '{}');
 const permissions = JSON.parse(localStorage.getItem('permissions') || '{}');
