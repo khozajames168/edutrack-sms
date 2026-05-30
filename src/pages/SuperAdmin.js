@@ -7,7 +7,10 @@ export default function SuperAdmin({ onLogout }) {
   const [colleges, setColleges] = useState([]);
   const [stats, setStats] = useState({});
 const [loading, setLoading] = useState(true); // eslint-disable-line
-  const [showAddCollege, setShowAddCollege] = useState(false);
+ const [showAddCollege, setShowAddCollege] = useState(false);
+const [showAddInvoice, setShowAddInvoice] = useState(false);
+const [invoices, setInvoices] = useState([]);
+const [invoiceForm, setInvoiceForm] = useState({ collegeId: '', amount: '2500', dueDate: '' });
   const [form, setForm] = useState({
     name: '', slug: '', email: '', phone: '', address: '',
     primaryColor: '#1B1F8A', secondaryColor: '#E91E8C', accentColor: '#8DC63F',
@@ -27,21 +30,55 @@ const [loading, setLoading] = useState(true); // eslint-disable-line
   useEffect(() => {
     loadData();
   }, []); // eslint-disable-line
-  const loadData = async () => {
-    try {
-      const [statsRes, collegesRes] = await Promise.all([
-        fetch(`${API_URL}/api/super/stats`, { headers }),
-        fetch(`${API_URL}/api/super/colleges`, { headers }),
-      ]);
-      const statsData = await statsRes.json();
-      const collegesData = await collegesRes.json();
-      if (!statsData.error) setStats(statsData);
-      if (Array.isArray(collegesData)) setColleges(collegesData);
-    } catch (err) {
-      console.error(err);
+ const loadData = async () => {
+  try {
+    const [statsRes, collegesRes, invoicesRes] = await Promise.all([
+      fetch(`${API_URL}/api/super/stats`, { headers }),
+      fetch(`${API_URL}/api/super/colleges`, { headers }),
+      fetch(`${API_URL}/api/super/invoices`, { headers }),
+    ]);
+    const statsData = await statsRes.json();
+    const collegesData = await collegesRes.json();
+    const invoicesData = await invoicesRes.json();
+    if (!statsData.error) setStats(statsData);
+    if (Array.isArray(collegesData)) setColleges(collegesData);
+    if (Array.isArray(invoicesData)) setInvoices(invoicesData);
+  } catch (err) {
+    console.error(err);
+  }
+  setLoading(false); // eslint-disable-line
+};
+
+const markInvoicePaid = async (invoiceId) => {
+  try {
+    await fetch(`${API_URL}/api/super/invoices/${invoiceId}/pay`, {
+      method: 'PATCH',
+      headers,
+      body: JSON.stringify({ paymentMethod: 'EFT', reference: `PAY-${Date.now()}` }),
+    });
+    loadData();
+  } catch (err) {
+    console.error(err);
+  }
+};
+
+const handleAddInvoice = async () => {
+  try {
+    const res = await fetch(`${API_URL}/api/super/invoices`, {
+      method: 'POST',
+      headers,
+      body: JSON.stringify(invoiceForm),
+    });
+    const data = await res.json();
+    if (data.id) {
+      alert('✅ Invoice generated successfully!');
+      setShowAddInvoice(false);
+      loadData();
     }
-    setLoading(false);
-  };
+  } catch (err) {
+    console.error(err);
+  }
+};
 
   const handleChange = (e) => {
     setForm(prev => ({ ...prev, [e.target.name]: e.target.value }));
@@ -104,10 +141,11 @@ const [loading, setLoading] = useState(true); // eslint-disable-line
         <nav className="flex-1 p-4">
           <ul className="space-y-1">
             {[
-              { key: 'dashboard', icon: '📊', label: 'Dashboard' },
-              { key: 'colleges', icon: '🏫', label: 'Colleges' },
-              { key: 'add', icon: '➕', label: 'Add College' },
-            ].map(item => (
+  { key: 'dashboard', icon: '📊', label: 'Dashboard' },
+  { key: 'colleges', icon: '🏫', label: 'Colleges' },
+  { key: 'invoices', icon: '💳', label: 'Invoices' },
+  { key: 'add', icon: '➕', label: 'Add College' },
+].map(item => (
               <li key={item.key}
                 onClick={() => { setActiveTab(item.key); if (item.key === 'add') setShowAddCollege(true); }}
                 className="rounded-lg px-4 py-3 cursor-pointer flex items-center gap-3 text-sm transition"
@@ -241,6 +279,85 @@ const [loading, setLoading] = useState(true); // eslint-disable-line
         </div>
       </div>
 
+      {/* Invoices */}
+          {activeTab === 'invoices' && (
+            <div>
+              <div className="flex justify-between mb-6">
+                <h3 className="font-bold text-gray-800 text-lg">Invoice Management</h3>
+                <button onClick={() => setShowAddInvoice(true)}
+                  className="px-4 py-2 text-white rounded-lg text-sm font-medium"
+                  style={{ background: '#1B1F8A' }}>
+                  ➕ Generate Invoice
+                </button>
+              </div>
+
+              <div className="grid grid-cols-3 gap-4 mb-6">
+                <div className="bg-white rounded-xl shadow-sm p-5 border-t-4" style={{ borderColor: '#1B1F8A' }}>
+                  <p className="text-sm text-gray-500">Total Invoiced</p>
+                  <p className="text-2xl font-bold mt-1" style={{ color: '#1B1F8A' }}>
+                    R{invoices.reduce((sum, i) => sum + parseFloat(i.amount || 0), 0).toLocaleString()}
+                  </p>
+                </div>
+                <div className="bg-white rounded-xl shadow-sm p-5 border-t-4" style={{ borderColor: '#8DC63F' }}>
+                  <p className="text-sm text-gray-500">Total Paid</p>
+                  <p className="text-2xl font-bold mt-1" style={{ color: '#8DC63F' }}>
+                    R{invoices.filter(i => i.status === 'paid').reduce((sum, i) => sum + parseFloat(i.amount || 0), 0).toLocaleString()}
+                  </p>
+                </div>
+                <div className="bg-white rounded-xl shadow-sm p-5 border-t-4" style={{ borderColor: '#E91E8C' }}>
+                  <p className="text-sm text-gray-500">Outstanding</p>
+                  <p className="text-2xl font-bold mt-1" style={{ color: '#E91E8C' }}>
+                    R{invoices.filter(i => i.status === 'unpaid').reduce((sum, i) => sum + parseFloat(i.amount || 0), 0).toLocaleString()}
+                  </p>
+                </div>
+              </div>
+
+              <div className="bg-white rounded-xl shadow-sm overflow-hidden">
+                <table className="w-full">
+                  <thead style={{ background: '#0f172a' }}>
+                    <tr className="text-left text-xs text-white">
+                      <th className="px-4 py-3">Invoice No</th>
+                      <th className="px-4 py-3">College</th>
+                      <th className="px-4 py-3">Amount</th>
+                      <th className="px-4 py-3">Due Date</th>
+                      <th className="px-4 py-3">Status</th>
+                      <th className="px-4 py-3">Action</th>
+                    </tr>
+                  </thead>
+                  <tbody className="text-sm divide-y divide-gray-100">
+                    {invoices.map(invoice => (
+                      <tr key={invoice.id} className="hover:bg-gray-50">
+                        <td className="px-4 py-3 font-medium" style={{ color: '#1B1F8A' }}>{invoice.invoice_number}</td>
+                        <td className="px-4 py-3">{invoice.college_name}</td>
+                        <td className="px-4 py-3 font-medium">R{parseFloat(invoice.amount).toLocaleString()}</td>
+                        <td className="px-4 py-3 text-gray-600">{invoice.due_date ? new Date(invoice.due_date).toLocaleDateString('en-ZA') : '-'}</td>
+                        <td className="px-4 py-3">
+                          <span className="px-3 py-1 rounded-full text-xs font-medium"
+                            style={{
+                              background: invoice.status === 'paid' ? '#f0fdf4' : '#fef2f2',
+                              color: invoice.status === 'paid' ? '#16a34a' : '#dc2626'
+                            }}>
+                            {invoice.status}
+                          </span>
+                        </td>
+                        <td className="px-4 py-3">
+                          {invoice.status === 'unpaid' && (
+                            <button
+                              onClick={() => markInvoicePaid(invoice.id)}
+                              className="text-xs px-3 py-1 rounded-lg text-white font-medium"
+                              style={{ background: '#8DC63F' }}>
+                              Mark Paid
+                            </button>
+                          )}
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          )}
+
       {/* Add College Modal */}
       {showAddCollege && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
@@ -336,5 +453,52 @@ const [loading, setLoading] = useState(true); // eslint-disable-line
         </div>
       )}
     </div>
+    {/* Generate Invoice Modal */}
+{showAddInvoice && (
+  <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+    <div className="bg-white rounded-2xl shadow-2xl p-8 w-full max-w-md">
+      <h3 className="text-lg font-bold mb-6 text-gray-800">Generate Invoice</h3>
+      <div className="space-y-4">
+        <div>
+          <label className="block text-sm font-medium text-gray-700 mb-1">College</label>
+          <select value={invoiceForm.collegeId}
+            onChange={(e) => setInvoiceForm(prev => ({ ...prev, collegeId: e.target.value }))}
+            className="w-full border border-gray-300 rounded-lg px-4 py-2.5 text-sm focus:outline-none">
+            <option value="">Select college</option>
+            {colleges.map(c => (
+              <option key={c.id} value={c.id}>{c.name}</option>
+            ))}
+          </select>
+        </div>
+        <div>
+          <label className="block text-sm font-medium text-gray-700 mb-1">Amount (R)</label>
+          <input type="number"
+            value={invoiceForm.amount}
+            onChange={(e) => setInvoiceForm(prev => ({ ...prev, amount: e.target.value }))}
+            className="w-full border border-gray-300 rounded-lg px-4 py-2.5 text-sm focus:outline-none"
+            placeholder="2500" />
+        </div>
+        <div>
+          <label className="block text-sm font-medium text-gray-700 mb-1">Due Date</label>
+          <input type="date"
+            value={invoiceForm.dueDate}
+            onChange={(e) => setInvoiceForm(prev => ({ ...prev, dueDate: e.target.value }))}
+            className="w-full border border-gray-300 rounded-lg px-4 py-2.5 text-sm focus:outline-none" />
+        </div>
+      </div>
+      <div className="flex gap-4 mt-6">
+        <button onClick={() => setShowAddInvoice(false)}
+          className="flex-1 py-3 border border-gray-300 rounded-lg text-gray-700">
+          Cancel
+        </button>
+        <button onClick={handleAddInvoice}
+          className="flex-1 py-3 text-white font-bold rounded-lg"
+          style={{ background: '#1B1F8A' }}>
+          Generate Invoice
+        </button>
+      </div>
+    </div>
+  </div>
+)}
   );
 }
