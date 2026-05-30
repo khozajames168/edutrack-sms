@@ -91,3 +91,4 @@ export const saveAttendance = async (data) => {
   });
   return res.json();
 };
+export const logout = () => { localStorage.removeItem('token'); localStorage.removeItem('admin'); localStorage.removeItem('permissions'); localStorage.removeItem('college'); localStorage.removeItem('role'); };
