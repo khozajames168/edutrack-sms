@@ -9,6 +9,10 @@ import Attendance from './Attendance';
 import Reports from './Reports';
 import Communication from './Communication';
 import UserManual from './UserManual';
+import ChangePassword from './ChangePassword';
+import Assessments from './Assessments';
+import Deregistration from './Deregistration';
+import DHETPortal from './DHETPortal';
 import { logout } from '../utils/api';
 
 export default function Dashboard({ onLogout }) {
@@ -25,6 +29,7 @@ export default function Dashboard({ onLogout }) {
     burgersfort: 0,
     polokwane: 0,
   });
+  const [showChangePassword, setShowChangePassword] = useState(false);
 
   const [admin] = useState(() => JSON.parse(localStorage.getItem('admin') || '{}'));
 const [permissions] = useState(() => JSON.parse(localStorage.getItem('permissions') || '{}')); // eslint-disable-line
@@ -52,8 +57,11 @@ const [role] = useState(() => localStorage.getItem('role') || 'admin');
   { key: 'students', icon: '👥', label: 'Students', show: role !== 'lecturer' },
   { key: 'proof', icon: '📄', label: 'Proof of Registration', show: role !== 'lecturer' },
   { key: 'marks', icon: '🎓', label: 'Marks & Assessments', show: true },
+  { key: 'assessments', icon: '📋', label: 'Summative Assessments', show: true },
   { key: 'finance', icon: '💰', label: 'Finance', show: role === 'admin' || role === 'superadmin' || role === 'principal' },
   { key: 'attendance', icon: '📅', label: 'Attendance', show: true },
+  { key: 'deregistration', icon: '🚫', label: 'Deregistration', show: role === 'admin' || role === 'superadmin' },
+  { key: 'dhet', icon: '🏛️', label: 'DHET Portal', show: role === 'admin' || role === 'superadmin' || role === 'principal' },
   { key: 'reports', icon: '📊', label: 'Reports & Exports', show: role === 'admin' || role === 'superadmin' || role === 'principal' },
   { key: 'communication', icon: '💬', label: 'Communication', show: role === 'admin' || role === 'superadmin' },
   { key: 'manual', icon: '📖', label: 'User Manual', show: true },
@@ -180,10 +188,14 @@ const [role] = useState(() => localStorage.getItem('role') || 'admin');
               style={{ background: '#E91E8C' }}>
               {admin.name?.[0] || 'A'}
             </div>
-            <button onClick={() => { logout(); onLogout && onLogout(); }}
-              className="text-xs text-gray-400 hover:text-red-500 hidden md:block">
-              Sign Out
-            </button>
+            <button onClick={() => setShowChangePassword(true)}
+  className="text-xs text-gray-400 hover:text-blue-500 hidden md:block">
+  🔑 Password
+</button>
+<button onClick={() => { logout(); onLogout && onLogout(); }}
+  className="text-xs text-gray-400 hover:text-red-500 hidden md:block">
+  Sign Out
+</button>
           </div>
         </div>
 
@@ -318,9 +330,23 @@ const [role] = useState(() => localStorage.getItem('role') || 'admin');
   </div>
 )}
           {activePage === 'manual' && <UserManual />}
+          {activePage === 'assessments' && (
+  <Assessments
+    assignedCourse={role === 'lecturer' ? admin.assigned_course : null}
+    role={role}
+  />
+)}
+{activePage === 'deregistration' && <Deregistration role={role} />}
+{activePage === 'dhet' && <DHETPortal />}
 
         </div>
       </div>
+      {showChangePassword && (
+  <ChangePassword
+    onClose={() => setShowChangePassword(false)}
+    forced={false}
+  />
+)}
     </div>
   );
 }
