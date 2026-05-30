@@ -29,7 +29,6 @@ const [permissions, setPermissions] = useState({
 const [userRole, setUserRole] = useState('admin');
 const [notifications, setNotifications] = useState([]);
 const [showNotifications, setShowNotifications] = useState(false);
-const [notifications, setNotifications] = useState([]);
 const [showNotifications, setShowNotifications] = useState(false);
 
 const admin = JSON.parse(localStorage.getItem('admin') || '{}');
