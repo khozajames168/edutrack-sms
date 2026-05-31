@@ -230,6 +230,129 @@ export default function StudentPortal({ onBackToAdmin }) {
 
           {/* Proof */}
           {activeTab === 'proof' && (
+  <div className="max-w-2xl mx-auto">
+    <div className="flex gap-4 mb-6 justify-end">
+      <button onClick={() => window.print()}
+        className="px-6 py-3 text-white font-semibold rounded-lg"
+        style={{ background: '#1B1F8A' }}>
+        🖨️ Print
+      </button>
+      <button onClick={async () => {
+        const { jsPDF } = await import('jspdf');
+        const html2canvas = (await import('html2canvas')).default;
+        const element = document.getElementById('student-proof');
+        const canvas = await html2canvas(element, { scale: 2, backgroundColor: '#ffffff' });
+        const imgData = canvas.toDataURL('image/png');
+        const pdf = new jsPDF('p', 'mm', 'a4');
+        const pdfWidth = pdf.internal.pageSize.getWidth();
+        const pdfHeight = (canvas.height * pdfWidth) / canvas.width;
+        pdf.addImage(imgData, 'PNG', 0, 0, pdfWidth, pdfHeight);
+        pdf.save(`Proof_of_Registration_${student.id}.pdf`);
+      }}
+        className="px-6 py-3 text-white font-semibold rounded-lg"
+        style={{ background: '#E91E8C' }}>
+        📥 Download PDF
+      </button>
+    </div>
+
+    <div id="student-proof" className="bg-white rounded-xl shadow-sm p-8 border border-gray-200"
+      style={{ position: 'relative' }}>
+
+      {/* Watermark */}
+      <div style={{
+        position: 'absolute', top: '50%', left: '50%',
+        transform: 'translate(-50%, -50%) rotate(-45deg)',
+        fontSize: '60px', color: 'rgba(27, 31, 138, 0.04)',
+        fontWeight: 'bold', whiteSpace: 'nowrap', pointerEvents: 'none',
+        zIndex: 0, userSelect: 'none'
+      }}>SA SHEPHERD COLLEGE</div>
+
+      <div style={{ position: 'relative', zIndex: 1 }}>
+        {/* Header */}
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', paddingBottom: '15px', borderBottom: '4px solid #1B1F8A', marginBottom: '15px' }}>
+          <div>
+            <h1 style={{ color: '#1B1F8A', fontSize: '20px', fontWeight: 'bold' }}>SA SHEPHERD COLLEGE</h1>
+            <p style={{ color: '#666', fontSize: '11px' }}>DHET Exam Center No. 6999 926 54</p>
+            <p style={{ color: '#666', fontSize: '11px' }}>Burgersfort: 010 055 5115 | Polokwane: 015 008 5102</p>
+          </div>
+          <div style={{ textAlign: 'right' }}>
+            <div style={{ width: '70px', height: '70px', border: '2px solid #1B1F8A', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '8px', fontWeight: 'bold', color: '#1B1F8A', textAlign: 'center', padding: '8px' }}>
+              <div>SA SHEPHERD OFFICIAL STAMP</div>
+            </div>
+          </div>
+        </div>
+
+        {/* Pink bar */}
+        <div style={{ background: '#E91E8C', color: 'white', textAlign: 'center', padding: '8px', fontSize: '14px', fontWeight: 'bold', letterSpacing: '2px', marginBottom: '15px' }}>
+          OFFICIAL CONFIRMATION OF REGISTRATION
+        </div>
+
+        {/* Green bar */}
+        <div style={{ background: '#8DC63F', color: 'white', textAlign: 'center', padding: '4px', fontSize: '11px', marginBottom: '20px' }}>
+          TO WHOM IT MAY CONCERN — Academic Year {new Date().getFullYear()}
+        </div>
+
+        {/* Student details */}
+        <div style={{ display: 'flex', gap: '20px', marginBottom: '20px' }}>
+          <div style={{ flexShrink: 0 }}>
+            {student.photo
+              ? <img src={student.photo} alt="Student" style={{ width: '90px', height: '110px', objectFit: 'cover', border: '3px solid #1B1F8A' }} />
+              : <div style={{ width: '90px', height: '110px', border: '3px solid #1B1F8A', display: 'flex', alignItems: 'center', justifyContent: 'center', background: '#f0f4ff', fontSize: '30px' }}>👤</div>
+            }
+          </div>
+          <div style={{ flex: 1 }}>
+            <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '12px' }}>
+              {[
+                { label: 'Student Name', value: student.name },
+                { label: 'Student Number', value: student.id },
+                { label: 'Course Enrolled', value: student.course },
+                { label: 'Campus', value: student.campus },
+                { label: 'Registration Date', value: today },
+                { label: 'Academic Year', value: new Date().getFullYear().toString() },
+                { label: 'Status', value: '✓ REGISTERED & ACTIVE' },
+              ].map(({ label, value }) => (
+                <tr key={label}>
+                  <td style={{ padding: '5px 8px', fontWeight: 'bold', color: '#1B1F8A', background: '#f8f9ff', borderBottom: '1px solid #eee', width: '40%' }}>{label}</td>
+                  <td style={{ padding: '5px 8px', borderBottom: '1px solid #eee', color: label === 'Status' ? '#16a34a' : '#333', fontWeight: label === 'Student Number' || label === 'Status' ? 'bold' : 'normal' }}>{value}</td>
+                </tr>
+              ))}
+            </table>
+          </div>
+        </div>
+
+        {/* Notice */}
+        <div style={{ background: '#fff8e1', borderLeft: '4px solid #E91E8C', padding: '8px 12px', fontSize: '11px', color: '#333', marginBottom: '15px' }}>
+          This letter certifies that <strong>{student.name}</strong> is currently enrolled at SA Shepherd College for the {new Date().getFullYear()} academic year.
+        </div>
+
+        {/* Signature */}
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', marginTop: '20px', paddingTop: '15px', borderTop: '2px solid #1B1F8A' }}>
+          <div style={{ textAlign: 'center' }}>
+            <div style={{ borderTop: '2px solid #333', width: '180px', marginBottom: '4px' }}></div>
+            <p style={{ fontSize: '11px', fontWeight: 'bold', color: '#1B1F8A' }}>Campus Manager</p>
+            <p style={{ fontSize: '10px', color: '#666' }}>SA Shepherd College</p>
+            <p style={{ fontSize: '10px', color: '#666' }}>{today}</p>
+          </div>
+          <div style={{ textAlign: 'center' }}>
+            <div style={{ width: '70px', height: '70px', border: '2px solid #1B1F8A', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '35px' }}>▦</div>
+            <p style={{ fontSize: '9px', color: '#666', marginTop: '4px' }}>Scan to verify</p>
+          </div>
+        </div>
+
+        {/* Verification */}
+        <div style={{ background: '#f0f4ff', border: '1px solid #1B1F8A', padding: '6px 12px', fontSize: '10px', color: '#1B1F8A', marginTop: '12px', textAlign: 'center' }}>
+          🔒 VERIFICATION: SASC-{student.id}-{new Date().getFullYear()}-VRF — Verify at: sashepherdcollege.org.za
+        </div>
+
+        {/* Footer */}
+        <div style={{ marginTop: '12px', paddingTop: '8px', borderTop: '3px solid #8DC63F', display: 'flex', justifyContent: 'space-between', fontSize: '10px', color: '#666' }}>
+          <span>Burgersfort: Main Road, RCS Building | Tel: 010 055 5115</span>
+          <span>Polokwane: 17 Rissik Street | Tel: 015 008 5102</span>
+        </div>
+      </div>
+    </div>
+  </div>
+)}
             <div className="max-w-2xl mx-auto">
               <div className="bg-white rounded-xl shadow-sm p-8 border border-gray-200">
                 <div className="flex items-center gap-4 mb-8 pb-6 border-b border-gray-200">
