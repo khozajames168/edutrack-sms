@@ -120,7 +120,6 @@ export default function Assessments({ assignedCourse, role }) {
         )}
       </div>
 
-      {/* Course selector — only show if not a lecturer with assigned course */}
       {!assignedCourse && (
         <div className="bg-white rounded-xl shadow-sm p-6 mb-6">
           <label className="block text-sm font-medium text-gray-700 mb-2">Select Course</label>
@@ -142,7 +141,6 @@ export default function Assessments({ assignedCourse, role }) {
 
       {selectedCourse && (
         <>
-          {/* Weight summary */}
           <div className="grid grid-cols-3 gap-4 mb-6">
             <div className="bg-white rounded-xl shadow-sm p-5">
               <p className="text-sm text-gray-500">Total Assessments</p>
@@ -166,7 +164,6 @@ export default function Assessments({ assignedCourse, role }) {
             </div>
           )}
 
-          {/* Assessments list */}
           {assessments.length === 0 ? (
             <div className="bg-white rounded-xl shadow-sm p-12 text-center">
               <p className="text-4xl mb-3">📝</p>
@@ -274,7 +271,7 @@ export default function Assessments({ assignedCourse, role }) {
               </div>
               <div className="p-3 bg-blue-50 rounded-lg">
                 <p className="text-xs text-blue-700">
-                  Current total weight: <strong>{totalWeight}%</strong> + this assessment: <strong>{form.weight || 0}%</strong> = <strong>{totalWeight + parseFloat(form.weight || 0)}%</strong>
+                  Current total weight: <strong>{totalWeight}%</strong> + this: <strong>{form.weight || 0}%</strong> = <strong>{totalWeight + parseFloat(form.weight || 0)}%</strong>
                 </p>
               </div>
             </div>
@@ -325,7 +322,7 @@ export default function Assessments({ assignedCourse, role }) {
                           <input type="number" min="0" max={selectedAssessment.max_mark}
                             value={results[s.student_number] || ''}
                             onChange={(e) => setResults(p => ({ ...p, [s.student_number]: e.target.value }))}
-                            className="w-20 border border-gray-300 rounded px-2 py-1 text-center text-sm focus:outline-none focus:ring-2"
+                            className="w-20 border border-gray-300 rounded px-2 py-1 text-center text-sm focus:outline-none"
                             placeholder="0" />
                         </td>
                         <td className="px-4 py-3 font-medium"
@@ -341,4 +338,15 @@ export default function Assessments({ assignedCourse, role }) {
             <div className="flex gap-4">
               <button onClick={() => { setSelectedAssessment(null); setResults({}); }}
                 className="flex-1 py-3 border border-gray-300 rounded-lg text-gray-700">Cancel</button>
-              <button onClick={handleSaveResu
+              <button onClick={handleSaveResults}
+                className="flex-1 py-3 text-white font-bold rounded-lg"
+                style={{ background: '#8DC63F' }}>
+                💾 Save Results
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}

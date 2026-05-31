@@ -1,0 +1,24 @@
+{
+  "files": {
+    "main.css": "/static/css/main.70982b06.css",
+    "main.js": "/static/js/main.fd81f427.js",
+    "static/js/396.6c7cb237.chunk.js": "/static/js/396.6c7cb237.chunk.js",
+    "static/js/239.e39fb35b.chunk.js": "/static/js/239.e39fb35b.chunk.js",
+    "static/js/488.fdd3695e.chunk.js": "/static/js/488.fdd3695e.chunk.js",
+    "static/js/977.1fa8c7fd.chunk.js": "/static/js/977.1fa8c7fd.chunk.js",
+    "static/js/455.2360791d.chunk.js": "/static/js/455.2360791d.chunk.js",
+    "static/media/sasc-logo.png": "/static/media/sasc-logo.660c5069be0b69c41dec.png",
+    "index.html": "/index.html",
+    "main.70982b06.css.map": "/static/css/main.70982b06.css.map",
+    "main.fd81f427.js.map": "/static/js/main.fd81f427.js.map",
+    "396.6c7cb237.chunk.js.map": "/static/js/396.6c7cb237.chunk.js.map",
+    "239.e39fb35b.chunk.js.map": "/static/js/239.e39fb35b.chunk.js.map",
+    "488.fdd3695e.chunk.js.map": "/static/js/488.fdd3695e.chunk.js.map",
+    "977.1fa8c7fd.chunk.js.map": "/static/js/977.1fa8c7fd.chunk.js.map",
+    "455.2360791d.chunk.js.map": "/static/js/455.2360791d.chunk.js.map"
+  },
+  "entrypoints": [
+    "static/css/main.70982b06.css",
+    "static/js/main.fd81f427.js"
+  ]
+}
