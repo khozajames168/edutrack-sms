@@ -29,6 +29,8 @@ export default function Dashboard({ onLogout }) {
     burgersfort: 0,
     polokwane: 0,
   });
+  const [recentStudents, setRecentStudents] = useState([]); // eslint-disable-line
+  
   const [showChangePassword, setShowChangePassword] = useState(false);
 
   const [admin] = useState(() => JSON.parse(localStorage.getItem('admin') || '{}'));
@@ -40,16 +42,18 @@ const [role] = useState(() => localStorage.getItem('role') || 'admin');
   }, []); // eslint-disable-line
 
   const loadStats = async () => {
-    try {
-      const { getStats, getNotifications } = await import('../utils/api');
-      const data = await getStats();
-      if (data && !data.error) setStats(data);
-      const notifs = await getNotifications();
-      if (Array.isArray(notifs)) setNotifications(notifs);
-    } catch (err) {
-      console.error(err);
-    }
-  };
+  try {
+    const { getStats, getNotifications, getStudents } = await import('../utils/api');
+    const data = await getStats();
+    if (data && !data.error) setStats(data);
+    const notifs = await getNotifications();
+    if (Array.isArray(notifs)) setNotifications(notifs);
+    const students = await getStudents();
+    if (Array.isArray(students)) setRecentStudents(students.slice(0, 5));
+  } catch (err) {
+    console.error(err);
+  }
+};
 
   const navItems = [
   { key: 'dashboard', icon: '📊', label: 'Dashboard', show: true },
