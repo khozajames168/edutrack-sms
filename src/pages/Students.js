@@ -14,9 +14,9 @@ export default function Students({ onSelectStudent }) {
   const loadStudents = async () => {
     try {
       const data = await getStudents();
-      if (Array.isArray(data)) {
-        setStudents(data);
-      }
+     if (Array.isArray(data)) {
+  setStudents(data.filter(s => !s.is_deleted && s.status !== 'Deleted'));
+}
     } catch (err) {
       console.error('Error loading students:', err);
     }
